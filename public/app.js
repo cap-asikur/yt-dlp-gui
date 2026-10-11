@@ -35,6 +35,12 @@ const formatSelect = document.getElementById('format-select');
 const audioFormatSelect = document.getElementById('audio-format-select');
 const startConfiguredDownload = document.getElementById('start-configured-download');
 const downloadButtonLabel = document.getElementById('download-button-label');
+const cdnLinkSection = document.getElementById('cdn-link-section');
+const cdnUrlInput = document.getElementById('cdn-url-input');
+const copyCdnBtn = document.getElementById('copy-cdn-btn');
+const copyCdnText = document.getElementById('copy-cdn-text');
+const openCdnLink = document.getElementById('open-cdn-link');
+const cdnStreamType = document.getElementById('cdn-stream-type');
 
 const downloadsList = document.getElementById('downloads-list');
 const emptyState = document.getElementById('empty-state');
@@ -329,6 +335,96 @@ function updateDownloadButtonLabel() {
     const qText = activeChip ? activeChip.querySelector('.res-chip-main').textContent : `${selectedQuality}p`;
     downloadButtonLabel.textContent = `Download ${qText} (${selectedFormat.toUpperCase()})`;
   }
+  updateCdnLink();
+}
+
+function updateCdnLink() {
+  if (!inspectedData) return;
+
+  let streamUrl = '';
+  let streamLabel = 'Direct Stream';
+
+  if (activeMode === 'audio') {
+    streamUrl = inspectedData.audioUrl || inspectedData.directUrl || '';
+    streamLabel = 'Audio Stream';
+  } else {
+    if (inspectedData.resolutions && inspectedData.resolutions.length > 0) {
+      const match = inspectedData.resolutions.find(r => r.height.toString() === selectedQuality.toString());
+      if (match && match.url) {
+        streamUrl = match.url;
+        streamLabel = `${match.height}p Video Stream`;
+      }
+    }
+    if (!streamUrl) {
+      streamUrl = inspectedData.directUrl || '';
+      streamLabel = 'Best Stream';
+    }
+  }
+
+  cdnUrlInput.value = streamUrl;
+  cdnStreamType.textContent = streamLabel;
+
+  if (streamUrl) {
+    openCdnLink.href = streamUrl;
+    openCdnLink.classList.remove('hidden');
+    copyCdnBtn.disabled = false;
+  } else {
+    openCdnLink.removeAttribute('href');
+    openCdnLink.classList.add('hidden');
+    copyCdnBtn.disabled = true;
+    refreshLiveCdnLink();
+  }
+}
+
+let cdnRefreshDebounce = null;
+function refreshLiveCdnLink() {
+  if (!inspectedData || !urlInput.value.trim()) return;
+  clearTimeout(cdnRefreshDebounce);
+  cdnRefreshDebounce = setTimeout(async () => {
+    try {
+      const res = await fetch('/api/get-cdn-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: urlInput.value.trim(),
+          mode: activeMode,
+          quality: selectedQuality
+        })
+      });
+      const data = await res.json();
+      if (data && data.cdnUrl) {
+        cdnUrlInput.value = data.cdnUrl;
+        openCdnLink.href = data.cdnUrl;
+        openCdnLink.classList.remove('hidden');
+        copyCdnBtn.disabled = false;
+      }
+    } catch (err) {
+      console.warn('Live CDN refresh skipped:', err);
+    }
+  }, 300);
+}
+
+if (copyCdnBtn) {
+  copyCdnBtn.addEventListener('click', async () => {
+    if (!cdnUrlInput.value) return;
+    try {
+      await navigator.clipboard.writeText(cdnUrlInput.value);
+      const originalText = copyCdnText.textContent;
+      copyCdnText.textContent = 'Copied!';
+      copyCdnBtn.classList.remove('btn-secondary');
+      copyCdnBtn.classList.add('btn-success');
+      setTimeout(() => {
+        copyCdnText.textContent = originalText;
+        copyCdnBtn.classList.remove('btn-success');
+        copyCdnBtn.classList.add('btn-secondary');
+      }, 2000);
+    } catch {
+      cdnUrlInput.select();
+      document.execCommand('copy');
+      copyCdnText.textContent = 'Copied!';
+      setTimeout(() => { copyCdnText.textContent = 'Copy'; }, 2000);
+    }
+  });
 }
 
 // Start Download

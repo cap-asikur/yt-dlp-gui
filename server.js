@@ -178,13 +178,23 @@ const server = http.createServer(async (req, res) => {
                   label,
                   fps: f.fps || null,
                   ext: f.ext,
-                  filesize: size
+                  filesize: size,
+                  url: f.url || null
                 });
               }
             }
           });
 
           const resolutions = Array.from(videoResMap.values()).sort((a, b) => b.height - a.height);
+
+          let bestAudioUrl = null;
+          const audioFormats = formats.filter(f => f.vcodec === 'none' && f.url);
+          if (audioFormats.length > 0) {
+            audioFormats.sort((a, b) => (b.abr || b.tbr || 0) - (a.abr || a.tbr || 0));
+            bestAudioUrl = audioFormats[0].url;
+          }
+
+          const directUrl = info.url || (resolutions.length && resolutions[0].url) || (formats.length && formats[formats.length - 1].url) || null;
 
           const result = {
             id: info.id,
@@ -194,6 +204,8 @@ const server = http.createServer(async (req, res) => {
             thumbnail: info.thumbnail || (info.thumbnails && info.thumbnails.length ? info.thumbnails[info.thumbnails.length - 1].url : null),
             description: (info.description || '').slice(0, 300),
             resolutions,
+            directUrl,
+            audioUrl: bestAudioUrl,
             webpage_url: info.webpage_url || url
           };
 
@@ -202,6 +214,66 @@ const server = http.createServer(async (req, res) => {
         } catch (err) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Failed to parse metadata: ' + err.message }));
+        }
+      });
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Live direct CDN stream URL resolver
+  if (pathname === '/api/get-cdn-link' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const url = (body.url || '').trim();
+      if (!url) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'URL is required' }));
+      }
+      const mode = body.mode || 'video';
+      const quality = body.quality || 'best';
+      let formatSelector = 'bv*+ba/b';
+      if (mode === 'audio') {
+        formatSelector = 'ba/b';
+      } else if (quality && quality !== 'best') {
+        const qNum = parseInt(quality, 10);
+        if (!isNaN(qNum)) {
+          formatSelector = `bv*[height<=${qNum}]+ba/b[height<=${qNum}]/bv*+ba/b`;
+        }
+      }
+
+      const ytdlpPath = getBinPath('yt-dlp');
+      const proc = spawn(ytdlpPath, ['-g', '-f', formatSelector, url]);
+      let out = '';
+      proc.stdout.on('data', d => { out += d.toString(); });
+      proc.on('error', (err) => {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: err.message }));
+      });
+      proc.on('close', code => {
+        if (code !== 0 || !out.trim()) {
+          const fallbackProc = spawn(ytdlpPath, ['-g', url]);
+          let fbOut = '';
+          fallbackProc.stdout.on('data', d => { fbOut += d.toString(); });
+          fallbackProc.on('error', () => {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: 'Failed to extract CDN URL' }));
+          });
+          fallbackProc.on('close', fbCode => {
+            if (fbCode === 0 && fbOut.trim()) {
+              const urls = fbOut.trim().split(/\r?\n/).filter(Boolean);
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ cdnUrl: urls[0], urls }));
+            }
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: 'Failed to extract CDN URL' }));
+          });
+        } else {
+          const urls = out.trim().split(/\r?\n/).filter(Boolean);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ cdnUrl: urls[0], urls }));
         }
       });
     } catch (err) {
