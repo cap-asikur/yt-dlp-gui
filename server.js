@@ -24,9 +24,18 @@ function getBinPath(executableName) {
   return executableName;
 }
 
-function hasFFmpeg() {
-  const ffmpegPath = getBinPath('ffmpeg');
-  return fs.existsSync(ffmpegPath);
+function checkFFmpeg() {
+  return new Promise((resolve) => {
+    const ffmpegPath = getBinPath('ffmpeg');
+    if (fs.existsSync(ffmpegPath)) return resolve(true);
+    try {
+      const proc = spawn('ffmpeg', ['-version']);
+      proc.on('error', () => resolve(false));
+      proc.on('close', (code) => resolve(code === 0));
+    } catch {
+      resolve(false);
+    }
+  });
 }
 
 function formatBytes(bytes) {
@@ -92,16 +101,21 @@ const server = http.createServer(async (req, res) => {
       const proc = spawn(ytdlpPath, ['--version']);
       let out = '';
       proc.stdout.on('data', d => { out += d.toString(); });
-      await new Promise(r => proc.on('close', r));
+      await new Promise(r => {
+        proc.on('error', () => r(null));
+        proc.on('close', r);
+      });
       ytdlpVersion = out.trim() || 'Available';
     } catch {
       ytdlpVersion = 'Not installed';
     }
 
+    const ffmpegReady = await checkFFmpeg();
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({
       ytDlpVersion: ytdlpVersion,
-      hasFFmpeg: hasFFmpeg(),
+      hasFFmpeg: ffmpegReady,
       defaultDownloadDir: DEFAULT_DOWNLOAD_DIR
     }));
   }
@@ -130,6 +144,11 @@ const server = http.createServer(async (req, res) => {
 
       proc.stdout.on('data', chunk => { stdout += chunk.toString(); });
       proc.stderr.on('data', chunk => { stderr += chunk.toString(); });
+
+      proc.on('error', err => {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'yt-dlp execution error: ' + err.message }));
+      });
 
       proc.on('close', code => {
         if (code !== 0) {
@@ -336,6 +355,14 @@ const server = http.createServer(async (req, res) => {
           jobData.logs.push(text);
           if (jobData.logs.length > 100) jobData.logs.shift();
         }
+      });
+
+      proc.on('error', err => {
+        jobData.process = null;
+        jobData.status = 'failed';
+        jobData.eta = 'Error';
+        jobData.logs.push(`Failed to start yt-dlp: ${err.message}`);
+        eventBus.emit('progress', { jobId, ...jobData, process: undefined });
       });
 
       proc.on('close', code => {

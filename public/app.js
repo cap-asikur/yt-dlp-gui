@@ -40,7 +40,6 @@ const downloadsList = document.getElementById('downloads-list');
 const emptyState = document.getElementById('empty-state');
 const jobsCount = document.getElementById('jobs-count');
 const clearCompletedBtn = document.getElementById('clear-completed-btn');
-const fdmAutoDownloadToggle = document.getElementById('fdm-auto-download-toggle');
 const countAll = document.getElementById('count-all');
 const countActive = document.getElementById('count-active');
 const countCompleted = document.getElementById('count-completed');
