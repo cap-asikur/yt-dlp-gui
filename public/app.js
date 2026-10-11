@@ -123,7 +123,7 @@ async function checkSystem() {
   try {
     const res = await fetch('/api/system');
     const data = await res.json();
-    
+
     if (data.ytDlpVersion && data.ytDlpVersion !== 'Not found' && data.ytDlpVersion !== 'Not installed') {
       ytdlpStatus.className = 'status-pill online';
       ytdlpVerText.textContent = `yt-dlp: v${data.ytDlpVersion}`;
@@ -190,10 +190,10 @@ clearBtn.addEventListener('click', () => {
 modeToggle.addEventListener('click', (e) => {
   const btn = e.target.closest('.toggle-btn');
   if (!btn) return;
-  
+
   modeToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  
+
   activeMode = btn.dataset.mode;
   if (activeMode === 'audio') {
     videoOptionsSection.classList.add('hidden');
@@ -280,7 +280,7 @@ fetchInfoBtn.addEventListener('click', fetchInfo);
 // Render Resolution Chips
 function renderResolutionChips(resolutions) {
   resolutionChips.innerHTML = '';
-  
+
   const resList = resolutions && resolutions.length > 0 ? resolutions : [
     { height: 1080, label: '1080p Full HD', fps: null, filesize: 0 },
     { height: 720, label: '720p HD', fps: null, filesize: 0 },
@@ -446,8 +446,8 @@ function renderOrUpdateJob(job) {
   const isComplete = job.status === 'completed';
   const isFinished = isComplete || job.status === 'cancelled';
 
-  const modeBadgeText = job.mode === 'audio' 
-    ? `${job.format.toUpperCase()} (${job.quality})` 
+  const modeBadgeText = job.mode === 'audio'
+    ? `${job.format.toUpperCase()} (${job.quality})`
     : `${job.format.toUpperCase()} ${job.quality === 'best' ? 'Best' : job.quality + 'p'}`;
 
   // If card already exists, update properties smoothly
@@ -629,7 +629,7 @@ function dismissJob(jobId) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ jobId })
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 async function cancelJob(jobId) {
