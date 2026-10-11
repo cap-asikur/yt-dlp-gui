@@ -859,3 +859,14 @@ function escapeHtml(text) {
 checkSystem();
 setupEventSource();
 loadExistingJobs();
+
+// Theme Toggle
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const nextTheme = isLight ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('ytdlp_theme', nextTheme);
+  });
+}
