@@ -1,0 +1,12 @@
+{
+  "name": "yt-dlp-gui",
+  "version": "1.0.0",
+  "description": "Clean, lightweight Web GUI for yt-dlp",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["yt-dlp", "gui", "video-downloader"],
+  "author": "",
+  "license": "MIT"
+}

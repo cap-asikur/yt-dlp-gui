@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yt-dlp GUI — Universal Media Downloader</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </div>
+        <div>
+          <h1>yt-dlp GUI</h1>
+          <p class="subtitle">Universal downloader for YouTube, X, TikTok, Instagram, Reddit & 1000+ sites</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-pill" id="ytdlp-status">
+          <span class="status-dot"></span>
+          <span id="ytdlp-ver-text">Checking yt-dlp...</span>
+        </div>
+        <div class="status-pill" id="ffmpeg-status">
+          <span class="status-dot"></span>
+          <span id="ffmpeg-ver-text">Checking FFmpeg...</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- App Dashboard Grid (Side-by-Side Responsive Layout) -->
+    <main class="dashboard-grid">
+      <!-- Left Column: URL Input, Video Preview & Configuration -->
+      <section class="card main-card">
+        <div class="card-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          <span>Link Downloader</span>
+        </div>
+
+        <div class="url-input-group">
+          <div class="input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            <input type="text" id="url-input" placeholder="Paste video link here..." autocomplete="off">
+            <button id="paste-btn" class="btn btn-ghost btn-sm" title="Paste from clipboard">Paste</button>
+            <button id="clear-btn" class="btn btn-ghost btn-sm hidden" title="Clear input">&times;</button>
+          </div>
+          <div class="input-actions">
+            <button id="fetch-info-btn" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span class="btn-text">Analyze Link</span>
+              <span class="spinner hidden"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State Indicator -->
+        <div id="inspect-loading" class="inspect-loading hidden">
+          <span class="spinner"></span>
+          <span>Analyzing link and fetching available resolutions...</span>
+        </div>
+
+        <!-- Preview & Resolution Selection Panel -->
+        <div id="preview-panel" class="preview-panel hidden">
+          <div class="preview-meta">
+            <div class="thumbnail-wrapper">
+              <img id="preview-thumb" src="" alt="Thumbnail" />
+              <span id="preview-duration" class="duration-badge">00:00</span>
+            </div>
+            <div class="preview-info">
+              <h3 id="preview-title">Video Title</h3>
+              <p id="preview-author" class="preview-author">Author / Channel</p>
+              <div class="preview-tags">
+                <span id="preview-site" class="tag">Direct Stream</span>
+                <span id="res-count-tag" class="tag tag-accent">Resolutions Found</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode Toggle -->
+          <div class="mode-section">
+            <label class="section-label">Download Type:</label>
+            <div class="toggle-group" id="mode-toggle">
+              <button type="button" class="toggle-btn active" data-mode="video">🎬 Video with Audio</button>
+              <button type="button" class="toggle-btn" data-mode="audio">🎵 Audio Only (MP3)</button>
+            </div>
+          </div>
+
+          <!-- Resolution Selector (Video Mode) -->
+          <div id="video-options-section" class="options-section">
+            <label class="section-label">Select Video Resolution:</label>
+            <div id="resolution-chips" class="resolution-chips">
+              <!-- Dynamically populated chips -->
+            </div>
+
+            <div class="secondary-options">
+              <div class="option-field">
+                <label for="format-select">Format</label>
+                <select id="format-select" class="form-select">
+                  <option value="mp4" selected>MP4 (Recommended)</option>
+                  <option value="mkv">MKV</option>
+                  <option value="webm">WebM</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Audio Options Section (Audio Mode) -->
+          <div id="audio-options-section" class="options-section hidden">
+            <label class="section-label">Select Audio Quality:</label>
+            <div id="audio-quality-chips" class="resolution-chips">
+              <button type="button" class="res-chip active" data-quality="best">Best Available (320k/VBR)</button>
+              <button type="button" class="res-chip" data-quality="320K">320 kbps (High)</button>
+              <button type="button" class="res-chip" data-quality="256K">256 kbps</button>
+              <button type="button" class="res-chip" data-quality="192K">192 kbps (Standard)</button>
+              <button type="button" class="res-chip" data-quality="128K">128 kbps (Light)</button>
+            </div>
+
+            <div class="secondary-options">
+              <div class="option-field">
+                <label for="audio-format-select">Format</label>
+                <select id="audio-format-select" class="form-select">
+                  <option value="mp3" selected>MP3</option>
+                  <option value="m4a">M4A (AAC)</option>
+                  <option value="flac">FLAC (Lossless)</option>
+                  <option value="wav">WAV</option>
+                  <option value="opus">Opus</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Final Download Trigger Actions -->
+          <div class="download-action-container">
+            <button id="start-configured-download" class="btn btn-primary btn-large btn-block">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span id="download-button-label">Download 1080p Full HD (MP4)</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Downloads & Saved Files Queue -->
+      <section class="downloads-section card">
+        <div class="section-header">
+          <div class="queue-header-top">
+            <div class="queue-title-badge">
+              <h2>Downloads & Saved Files</h2>
+              <span id="jobs-count" class="badge">0</span>
+            </div>
+            <button id="clear-completed-btn" class="btn btn-ghost btn-xs" title="Clear finished & cancelled downloads">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              Clear Done
+            </button>
+          </div>
+
+          <!-- Queue Control Bar: Filter Tabs -->
+          <div class="queue-toolbar">
+            <div class="filter-tabs" id="queue-filter-tabs">
+              <button type="button" class="filter-tab active" data-filter="all">All <span class="tab-count" id="count-all">0</span></button>
+              <button type="button" class="filter-tab" data-filter="active">Active <span class="tab-count" id="count-active">0</span></button>
+              <button type="button" class="filter-tab" data-filter="completed">Done <span class="tab-count" id="count-completed">0</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div id="downloads-list" class="downloads-list scrollable-queue">
+          <div id="empty-state" class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="8 12 12 16 16 12"></polyline>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+            </svg>
+            <p>No downloads yet</p>
+            <span>Paste a video link on the left to start downloading.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

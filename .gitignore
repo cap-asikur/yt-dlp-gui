@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Executables & Large Binaries (exceeds GitHub 100MB limit)
+bin/*.exe
+bin/*.zip
+bin/*.tar.gz
+bin/*.7z
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
