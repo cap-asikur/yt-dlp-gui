@@ -1,62 +1,4 @@
-:root {
-  --theme: dark;
-  --bg-base: #141312; /* Deep matte carbon background */
-  --bg-mesh: 
-    radial-gradient(at 0% 0%, rgba(224, 106, 38, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(74, 50, 36, 0.35) 0px, transparent 55%),
-    radial-gradient(at 50% 50%, rgba(224, 106, 38, 0.04) 0px, transparent 60%),
-    radial-gradient(at 100% 100%, rgba(224, 106, 38, 0.08) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(74, 50, 36, 0.25) 0px, transparent 50%);
-
-  --bg-card: #483225; /* Roasted Mocha session card from screenshot */
-  --bg-card-hover: #52392b;
-  --bg-card-solid: #483225;
-  --bg-input: #231913;
-  --bg-input-focus: #1c140f;
-  --bg-chip: #38261c;
-  --bg-chip-hover: #4d3527;
-  --bg-pill: #302118;
-  --bg-dropdown: #2c1e15;
-  
-  --border-subtle: rgba(255, 245, 235, 0.1);
-  --border-subtle-hover: rgba(224, 106, 38, 0.4);
-  --border-input: rgba(255, 245, 235, 0.14);
-  --border-focus: #e06a26;
-
-  --text-main: #fff8f0; /* Crisp ivory text */
-  --text-muted: #c4b6aa;
-  --text-dim: #8a7a6e;
-  --text-heading: #ffffff;
-  
-  --accent-primary: #fff8f0; /* Cream/ivory button from screenshot */
-  --accent-primary-text: #26160e; /* Espresso text on ivory button */
-  --accent-primary-hover: #e06a26; /* Terracotta hover */
-  --accent-primary-glow: rgba(255, 248, 240, 0.25);
-  
-  --accent-terracotta: #e06a26; /* Terracotta Orange */
-  --accent-emerald: #22c55e;
-  --accent-emerald-hover: #16a34a;
-  --accent-amber: #e06a26;
-  --accent-rose: #ef4444;
-
-  --logo-gradient: linear-gradient(135deg, #483225, #e06a26);
-  --logo-shadow: 0 4px 16px rgba(224, 106, 38, 0.3);
-
-  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c4b6aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 16px 36px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 245, 235, 0.06);
-  --shadow-chip-active: 0 2px 12px rgba(224, 106, 38, 0.35);
-
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-full: 9999px;
-}
-
+:root,
 [data-theme="light"] {
   --theme: light;
   --bg-base: #f7f4ee; /* Soft warm ivory background from screenshot */
@@ -106,6 +48,65 @@
   --shadow-sm: 0 1px 3px rgba(72, 46, 33, 0.05), 0 1px 2px rgba(72, 46, 33, 0.03);
   --shadow-lg: 0 12px 28px -6px rgba(72, 46, 33, 0.08), 0 4px 12px -2px rgba(72, 46, 33, 0.04);
   --shadow-chip-active: 0 2px 10px rgba(72, 46, 33, 0.25);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+}
+
+[data-theme="dark"] {
+  --theme: dark;
+  --bg-base: #141312; /* Deep matte carbon background */
+  --bg-mesh: 
+    radial-gradient(at 0% 0%, rgba(224, 106, 38, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(74, 50, 36, 0.35) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(224, 106, 38, 0.04) 0px, transparent 60%),
+    radial-gradient(at 100% 100%, rgba(224, 106, 38, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(74, 50, 36, 0.25) 0px, transparent 50%);
+
+  --bg-card: #483225; /* Roasted Mocha session card from screenshot */
+  --bg-card-hover: #52392b;
+  --bg-card-solid: #483225;
+  --bg-input: #231913;
+  --bg-input-focus: #1c140f;
+  --bg-chip: #38261c;
+  --bg-chip-hover: #4d3527;
+  --bg-pill: #302118;
+  --bg-dropdown: #2c1e15;
+  
+  --border-subtle: rgba(255, 245, 235, 0.1);
+  --border-subtle-hover: rgba(224, 106, 38, 0.4);
+  --border-input: rgba(255, 245, 235, 0.14);
+  --border-focus: #e06a26;
+
+  --text-main: #fff8f0; /* Crisp ivory text */
+  --text-muted: #c4b6aa;
+  --text-dim: #8a7a6e;
+  --text-heading: #ffffff;
+  
+  --accent-primary: #fff8f0; /* Cream/ivory button from screenshot */
+  --accent-primary-text: #26160e; /* Espresso text on ivory button */
+  --accent-primary-hover: #e06a26; /* Terracotta hover */
+  --accent-primary-glow: rgba(255, 248, 240, 0.25);
+  
+  --accent-terracotta: #e06a26; /* Terracotta Orange */
+  --accent-emerald: #22c55e;
+  --accent-emerald-hover: #16a34a;
+  --accent-amber: #e06a26;
+  --accent-rose: #ef4444;
+
+  --logo-gradient: linear-gradient(135deg, #483225, #e06a26);
+  --logo-shadow: 0 4px 16px rgba(224, 106, 38, 0.3);
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c4b6aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 36px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 245, 235, 0.06);
+  --shadow-chip-active: 0 2px 12px rgba(224, 106, 38, 0.35);
 }
 
 * {
@@ -257,18 +258,20 @@ body {
   transition: transform 0.2s ease;
 }
 
-:root:not([data-theme="light"]) .theme-toggle-btn .sun-icon {
-  display: flex;
-}
-:root:not([data-theme="light"]) .theme-toggle-btn .moon-icon {
+/* In Light mode (default), show moon icon so clicking switches to dark */
+:root:not([data-theme="dark"]) .theme-toggle-btn .sun-icon {
   display: none;
+}
+:root:not([data-theme="dark"]) .theme-toggle-btn .moon-icon {
+  display: flex;
 }
 
-[data-theme="light"] .theme-toggle-btn .sun-icon {
-  display: none;
-}
-[data-theme="light"] .theme-toggle-btn .moon-icon {
+/* In Dark mode, show sun icon so clicking switches to light */
+[data-theme="dark"] .theme-toggle-btn .sun-icon {
   display: flex;
+}
+[data-theme="dark"] .theme-toggle-btn .moon-icon {
+  display: none;
 }
 
 /* Card Component */
