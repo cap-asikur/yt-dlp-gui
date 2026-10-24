@@ -52,6 +52,28 @@ const countCompleted = document.getElementById('count-completed');
 
 let currentFilter = 'all';
 
+const autoSaveCheckbox = document.getElementById('auto-save-checkbox');
+let autoSaveToDevice = localStorage.getItem('auto_save_device') !== 'false';
+if (autoSaveCheckbox) {
+  autoSaveCheckbox.checked = autoSaveToDevice;
+  autoSaveCheckbox.addEventListener('change', () => {
+    autoSaveToDevice = autoSaveCheckbox.checked;
+    localStorage.setItem('auto_save_device', autoSaveToDevice);
+  });
+}
+
+const autoTriggeredJobs = new Set();
+
+function triggerDeviceSave(jobId, filename) {
+  const downloadUrl = `/api/file/${jobId}`;
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  if (filename) a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 const filterTabs = document.querySelectorAll('.filter-tab');
 filterTabs.forEach(tab => {
   tab.addEventListener('click', () => {
@@ -525,6 +547,10 @@ function getCardActionsHtml(job) {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
         Completed
       </span>
+      <a href="/api/file/${job.id}" download class="btn btn-primary btn-sm save-device-btn" data-id="${job.id}" title="Save file to this device">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span>Save</span>
+      </a>
       <button class="btn btn-ghost btn-sm dismiss-btn" data-id="${job.id}" title="Remove from list">✕</button>
     `;
   }
@@ -597,6 +623,11 @@ function renderOrUpdateJob(job) {
       if (actionsEl) {
         actionsEl.innerHTML = getCardActionsHtml(job);
         setupCardEvents(card, job);
+      }
+
+      if (isComplete && autoSaveToDevice && !autoTriggeredJobs.has(job.id)) {
+        autoTriggeredJobs.add(job.id);
+        triggerDeviceSave(job.id, job.filename);
       }
     }
     return;
@@ -813,7 +844,12 @@ async function loadExistingJobs() {
     const res = await fetch('/api/jobs');
     const jobs = await res.json();
     if (Array.isArray(jobs)) {
-      jobs.forEach(job => renderOrUpdateJob(job));
+      jobs.forEach(job => {
+        if (job.status === 'completed') {
+          autoTriggeredJobs.add(job.id);
+        }
+        renderOrUpdateJob(job);
+      });
     }
   } catch (err) {
     console.error('Failed to load existing jobs:', err);

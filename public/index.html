@@ -225,13 +225,18 @@
             </button>
           </div>
 
-          <!-- Queue Control Bar: Filter Tabs -->
+          <!-- Queue Control Bar: Filter Tabs & Auto-Save Toggle -->
           <div class="queue-toolbar">
             <div class="filter-tabs" id="queue-filter-tabs">
               <button type="button" class="filter-tab active" data-filter="all">All <span class="tab-count" id="count-all">0</span></button>
               <button type="button" class="filter-tab" data-filter="active">Active <span class="tab-count" id="count-active">0</span></button>
               <button type="button" class="filter-tab" data-filter="completed">Done <span class="tab-count" id="count-completed">0</span></button>
             </div>
+            <label class="auto-save-toggle" title="Automatically trigger download to your phone/browser when finished">
+              <input type="checkbox" id="auto-save-checkbox" checked />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Auto-save to device</span>
+            </label>
           </div>
         </div>
 
